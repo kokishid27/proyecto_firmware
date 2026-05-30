@@ -62,7 +62,7 @@ void timer_setCont(timer_grupo_e grupo, timer_e timer, uint64_t cont_val)
 {
     timg_dev_t *ptr_tmrG = (grupo == TMR_GRUPO_0)? &TIMERG0 : &TIMERG1;
     ptr_tmrG->hw_timer[timer].loadhi.val = (uint32_t)(cont_val >> 32);
-    ptr_tmrG->hw_timer[timer].loadhi.val = (uint32_t)(cont_val & 0xFFFFFFFF);
+    ptr_tmrG->hw_timer[timer].loadlo.val = (uint32_t)(cont_val & 0xFFFFFFFF);
     ptr_tmrG->hw_timer[timer].load.val = 1;
 }
 
