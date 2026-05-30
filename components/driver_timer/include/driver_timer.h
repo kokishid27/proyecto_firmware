@@ -29,11 +29,14 @@ typedef void (*timer_intr_callback_t)(void* arg);
  * @param grupo Grupo de temporizadores correspondiente al temporizador que se quiere configurar
  * @param timer Temporizador especifico que se quiere configurar
  * @param cuenta_desc Argumento para seleccionar si la cuenta es descendente (true) o ascendente (false)
- * @param preescaler Divisor de frecuencia aplicado al temporizador
+ * @param divisor Divisor de frecuencia aplicado al temporizador que tiene de base 80MHz
  * @param alarm_val Valor que debe alcanzar la cuenta para generar un evento
  * @param autoreload Argumento para seleccionar si el evento es ciclico (true) o se realiza una sola vez (false)
+ * 
+ * @attention Para configurar y habilitar la interrupcion del temporizador se debe hacer
+ * con la funcion: timer_setINTR()
  */
-void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc,uint16_t preescaler, uint32_t alarm_val, bool autoreload);
+void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc,uint16_t divisor, uint32_t alarm_val, bool autoreload);
 
 /**
  * @brief Funcion para iniciar la cuenta del temporizador
@@ -98,8 +101,7 @@ void timer_setCont(timer_grupo_e grupo, timer_e timer, uint64_t cont_val);
 /**
  * @brief Obtiene el valor actual del contador del temporizador en tiempo real.
  * 
- * Esta función solicita un "latch" o captura al hardware (escribiendo en el registro TxUPDATE) 
- * para congelar instantáneamente el valor del contador en los registros de lectura sin detener 
+ * Esta función lee el valor del contador en los registros de lectura sin detener 
  * el conteo físico. Luego, une la parte baja (TxLO) y alta (TxHI) en una sola variable de 64 bits.
  * 
  * @param grupo Grupo de temporizadores al que pertenece el periférico (TMR_GRUPO_0 o TMR_GRUPO_1).
