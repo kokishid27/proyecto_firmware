@@ -45,7 +45,7 @@ void timer_setINTR(timer_grupo_e grupo, timer_e timer, timer_intr_callback_t cal
     esp_intr_alloc(
         scr_intr,
         ESP_INTR_FLAG_IRAM,
-        callback,
+        (intr_handler_t)callback,
         arg,
         NULL
     );
