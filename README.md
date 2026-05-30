@@ -13,7 +13,6 @@ Proyecto académico enfocado en el desarrollo de firmware desde cero para la ESP
 - Implementar drivers mediante acceso a registros.
 - Diseñar una capa HAL (Hardware Abstraction Layer).
 - Diseñar una capa BSP (Board Support Package).
-- Aplicar buenas prácticas de desarrollo colaborativo utilizando Git y GitHub.
 - Documentar el proceso de desarrollo.
 
 ## Arquitectura del Proyecto
