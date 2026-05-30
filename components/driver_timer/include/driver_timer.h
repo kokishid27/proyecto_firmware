@@ -83,7 +83,7 @@ void timer_setINTR(timer_grupo_e grupo, timer_e timer, timer_intr_callback_t cal
  * @param grupo Grupo de temporizadores al que pertenece el periférico (TMR_GRUPO_0 o TMR_GRUPO_1).
  * @param timer Temporizador específico dentro del grupo seleccionado (TIMER_0 o TIMER_1).
  */
-void timer_clearINTR(void);
+void timer_clearINTR(timer_grupo_e grupo, timer_e timer);
 
 /**
  * @brief Fuerza al contador del temporizador seleccionado a iniciar en un valor específico.
@@ -101,7 +101,7 @@ void timer_setCont(timer_grupo_e grupo, timer_e timer, uint64_t cont_val);
 /**
  * @brief Obtiene el valor actual del contador del temporizador en tiempo real.
  * 
- * Esta función lee el valor del contador en los registros de lectura sin detener 
+ * Esta función lee el valor del contador en los registros de lectura forzando una actualizacion sin detener
  * el conteo físico. Luego, une la parte baja (TxLO) y alta (TxHI) en una sola variable de 64 bits.
  * 
  * @param grupo Grupo de temporizadores al que pertenece el periférico (TMR_GRUPO_0 o TMR_GRUPO_1).
