@@ -1,35 +1,42 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C5 | ESP32-C6 | ESP32-H2 | ESP32-P4 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- | -------- | -------- | -------- |
+# Desarrollo de Firmware para ESP32
 
-# _Sample project_
+Proyecto académico enfocado en el desarrollo de firmware desde cero para la ESP32, implementando una arquitectura por capas basada en Drivers, HAL y BSP mediante acceso directo a registros.
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+## Desarrolladores
 
-This is the simplest buildable example. The example is used by command `idf.py create-project`
-that copies the project to user specified path and set it's name. For more information follow the [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project)
+- Jorge Habib Hernandez Rojas
+- Hector Rodrigo Teruel Grado
+
+## Objetivos
+
+- Comprender la arquitectura interna de la ESP32.
+- Implementar drivers mediante acceso a registros.
+- Diseñar una capa HAL (Hardware Abstraction Layer).
+- Diseñar una capa BSP (Board Support Package).
+- Aplicar buenas prácticas de desarrollo colaborativo utilizando Git y GitHub.
+- Documentar el proceso de desarrollo.
+
+## Arquitectura del Proyecto
+
+Application
+│
+├── BSP
+│
+├── HAL
+│
+├── Drivers
+│ ├── GPIO
+│ ├── TIMER
+│
+└── Hardware 
+
+
+## Convención de Ramas
+
+- `main`: versión estable.
+- `develop`: integración de funcionalidades.
+- `feature/*`: nuevas características.
+- `bugfix/*`: corrección de errores.
 
 
 
-## How to use example
-We encourage the users to use the example as a template for the new projects.
-A recommended way is to follow the instructions on a [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project).
-
-## Example folder contents
-
-The project **sample_project** contains one source file in C language [main.c](main/main.c). The file is located in folder [main](main).
-
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt`
-files that provide set of directives and instructions describing the project's source files and targets
-(executable, library, or both). 
-
-Below is short explanation of remaining files in the project folder.
-
-```
-├── CMakeLists.txt
-├── main
-│   ├── CMakeLists.txt
-│   └── main.c
-└── README.md                  This is the file you are currently reading
-```
-Additionally, the sample project contains Makefile and component.mk files, used for the legacy Make based build system. 
-They are not used or needed when building with CMake and idf.py.
