@@ -56,6 +56,8 @@ void timer_clearINTR(timer_grupo_e grupo, timer_e timer)
     timg_dev_t *ptr_tmrG = (grupo == TMR_GRUPO_0)? &TIMERG0 : &TIMERG1;
     if (timer == TIMER_0) ptr_tmrG->int_clr_timers.t0_int_clr = 1;
     else ptr_tmrG->int_clr_timers.t1_int_clr = 1;
+
+    ptr_tmrG->hw_timer[timer].config.tx_alarm_en = 1;
 }
 
 void timer_setCont(timer_grupo_e grupo, timer_e timer, uint64_t cont_val)
