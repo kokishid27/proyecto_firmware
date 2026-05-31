@@ -8,7 +8,7 @@
 #define GET_HIGH32B(x) ((uint32_t)(x >> 32))
 #define GET_LOW32B(x)  ((uint32_t)(x & 0xFFFFFFFFULL))
 
-void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc,uint16_t divisor, uint32_t alarm_val, bool autoreload)
+void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc, uint16_t divisor, uint32_t alarm_val, bool autoreload)
 {
     // Puntero a la estructura correspondiente segun el grupo
     timg_dev_t *ptr_tmrG = (grupo == TMR_GRUPO_0)? &TIMERG0 : &TIMERG1;
