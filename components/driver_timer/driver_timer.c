@@ -8,7 +8,7 @@
 #define GET_HIGH32B(x) ((uint32_t)(x >> 32))
 #define GET_LOW32B(x)  ((uint32_t)(x & 0xFFFFFFFFULL))
 
-void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc, uint16_t divisor, uint32_t alarm_val, bool autoreload)
+void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc, uint16_t divisor, uint64_t alarm_val, bool autoreload, bool alarm_en)
 {
     // Puntero a la estructura correspondiente segun el grupo
     timg_dev_t *ptr_tmrG = (grupo == TMR_GRUPO_0)? &TIMERG0 : &TIMERG1;
@@ -19,8 +19,7 @@ void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc, uint16_t
     ptr_tmrG->hw_timer[timer].config.tx_autoreload = (autoreload)? 1 : 0;
     ptr_tmrG->hw_timer[timer].alarmhi.val = GET_HIGH32B(alarm_val);
     ptr_tmrG->hw_timer[timer].alarmlo.val = GET_LOW32B(alarm_val);
-    ptr_tmrG->hw_timer[timer].config.tx_alarm_en = 1;
-    ptr_tmrG->hw_timer[timer].config.tx_level_int_en = 1;
+    ptr_tmrG->hw_timer[timer].config.tx_alarm_en = (alarm_en)? 1 : 0;
 }
 
 void timer_start(timer_grupo_e grupo, timer_e timer)
@@ -35,11 +34,20 @@ void timer_stop(timer_grupo_e grupo, timer_e timer)
     ptr_tmrG->hw_timer[timer].config.tx_en = 0;
 }
 
-void timer_setINTR(timer_grupo_e grupo, timer_e timer, timer_intr_callback_t callback, void * arg)
+void timer_setINTR(timer_grupo_e grupo, timer_e timer, tx_int_type_e int_type, timer_intr_callback_t callback, void * arg)
 {
     timg_dev_t *ptr_tmrG = (grupo == TMR_GRUPO_0)? &TIMERG0 : &TIMERG1;
     if (timer == TIMER_0) ptr_tmrG->int_ena_timers.t0_int_ena = 1;
     else ptr_tmrG->int_ena_timers.t1_int_ena = 1;
+    
+    if (int_type == TMR_LEVEL_INT) {
+        ptr_tmrG->hw_timer[timer].config.tx_level_int_en = 1;
+        ptr_tmrG->hw_timer[timer].config.tx_edge_int_en = 0;
+    }
+    else {
+        ptr_tmrG->hw_timer[timer].config.tx_level_int_en = 0;
+        ptr_tmrG->hw_timer[timer].config.tx_edge_int_en = 1;
+    }
 
     int scr_intr = (grupo == TMR_GRUPO_0)? 
                     ((timer == TIMER_0)? ETS_TG0_T0_LEVEL_INTR_SOURCE : ETS_TG0_T1_LEVEL_INTR_SOURCE) :
