@@ -5,6 +5,9 @@
 #include "soc/timer_group_struct.h"
 #include "esp_intr_alloc.h"
 
+#define GET_HIGH32B(x) ((uint32_t)(x >> 32))
+#define GET_LOW32B(x)  ((uint32_t)(x & 0xFFFFFFFFULL))
+
 void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc,uint16_t divisor, uint32_t alarm_val, bool autoreload)
 {
     // Puntero a la estructura correspondiente segun el grupo
@@ -63,8 +66,8 @@ void timer_clearINTR(timer_grupo_e grupo, timer_e timer)
 void timer_setCont(timer_grupo_e grupo, timer_e timer, uint64_t cont_val)
 {
     timg_dev_t *ptr_tmrG = (grupo == TMR_GRUPO_0)? &TIMERG0 : &TIMERG1;
-    ptr_tmrG->hw_timer[timer].loadhi.val = (uint32_t)(cont_val >> 32);
-    ptr_tmrG->hw_timer[timer].loadlo.val = (uint32_t)(cont_val & 0xFFFFFFFF);
+    ptr_tmrG->hw_timer[timer].loadhi.val = GET_HIGH32B(cont_val);
+    ptr_tmrG->hw_timer[timer].loadlo.val = GET_LOW32B(cont_val);
     ptr_tmrG->hw_timer[timer].load.val = 1;
 }
 
