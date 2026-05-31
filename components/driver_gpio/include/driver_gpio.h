@@ -2,10 +2,8 @@
 #define DRIVER_GPIO_H
 
 #include <stdint.h>
-#include <stdio.h>
 #include <stdbool.h>
 #include <unistd.h>
-#include "driver_timer.h"
 
 #define HWREG32VAL(x)	(*((volatile uint32_t *)(x)))
 #define HWREG32(x)		((volatile uint32_t *)(x))
@@ -75,6 +73,15 @@ typedef enum {
 	PULLDOWN
 } pull_mode_e;
 
+/**
+ * @brief Enumeracion para manejo de errores en funciones
+ * de configuracion de pines
+ */
+typedef enum {
+	GPIO_OK,
+	GPIO_ERR_PIN_NUM,
+} gpio_err_e;
+
 //////////////////////////////
 //	Prototipos de funciones	//
 //////////////////////////////
@@ -83,8 +90,9 @@ typedef enum {
  * @brief Funcion de configuracion de PIN como salida GPIO
  * 
  * @param pin Pin que se quiere configurar como salida GPIO 
+ * @return GPIO_OK si se configuro correctamente, codigo de error en caso contrario
  */
-void gpio_config_out(uint8_t pin);
+gpio_err_e gpio_config_out(uint8_t pin);
 
 /**
  * @brief Funcion de configuracion de PIN especifico como entrada
@@ -92,8 +100,9 @@ void gpio_config_out(uint8_t pin);
  * 
  * @param pin Numero del pin GPIO que se desea configurar
  * @param pull_mode Modo de resistencia interna (Pull-up, Pull-down o Pull-disable)
+ * @return GPIO_OK si se configura correctamente, codigo de error en caso contrario
  */
-void gpio_config_in(uint8_t pin, pull_mode_e pull_mode);
+gpio_err_e gpio_config_in(uint8_t pin, pull_mode_e pull_mode);
 
 /**
  * @brief Funcion de lectura logica actual de un pin configurado como salida
@@ -112,7 +121,8 @@ bool gpio_read(uint8_t pin);
  * 
  * @param pin numero de pin que al que se quiere escribir
  * @param value valor logico a escribir (0 para bajo, 1 para alto)
+ * @return GPIO_OK si se escribio con excito, codigo de error en caso contrario
  */
-void gpio_write(uint8_t pin, uint8_t value);
+gpio_err_e gpio_write(uint8_t pin, bool value);
 
 #endif
