@@ -67,16 +67,6 @@
 #define MCU_SEL_GPIO	(1 << 13) // 010 -> 2: Function 2 GPIO
 
 /**
- * @brief Enumeracion de abstraccion de numero de pin
- */
-typedef enum {
-    PIN0 = 0, PIN1, PIN2, PIN3, PIN4, PIN5, PIN6, PIN7, PIN8, PIN9,
-    PIN10, PIN11, PIN12, PIN13, PIN14, PIN15, PIN16, PIN17, PIN18, PIN19,
-    PIN20, PIN21, PIN22, PIN23, PIN24, PIN25, PIN26, PIN27, PIN28, PIN29,
-    PIN30, PIN31, PIN32, PIN33, PIN34, PIN35, PIN36, PIN37, PIN38, PIN39
-} pin_num_e;
-
-/**
  * @brief Enumeracion de abstraccion de pull mode
  */
 typedef enum {
