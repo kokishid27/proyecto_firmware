@@ -22,6 +22,11 @@ typedef enum {TIMER_0, TIMER_1} timer_e;
 typedef void (*timer_intr_callback_t)(void* arg);
 
 /**
+ * @brief Enumeracion para abstraccion de modo de interrupcion si es level o edge
+ */
+typedef enum {TMR_LEVEL_INT, TMR_EDGE_INT} tx_int_type_e;
+
+/**
  * @brief Funcion de configuracion de un temporizador.
  * ESP32 tiene un total de 4 temporizadores separados en dos grupos de dos temporizadores cada uno,  
  * esta funcion permite la configuracion de alguno en especifico.
@@ -32,11 +37,12 @@ typedef void (*timer_intr_callback_t)(void* arg);
  * @param divisor Divisor de frecuencia aplicado al temporizador que tiene de base 80MHz
  * @param alarm_val Valor que debe alcanzar la cuenta para generar un evento
  * @param autoreload Argumento para seleccionar si el evento es ciclico (true) o se realiza una sola vez (false)
+ * @param alarm_en Habilitar o deshabilitar la alarma
  * 
  * @attention Para configurar y habilitar la interrupcion del temporizador se debe hacer
  * con la funcion: timer_setINTR()
  */
-void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc, uint16_t divisor, uint64_t alarm_val, bool autoreload);
+void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc, uint16_t divisor, uint64_t alarm_val, bool autoreload, bool alarm_en);
 
 /**
  * @brief Funcion para iniciar la cuenta del temporizador
@@ -67,10 +73,11 @@ void timer_stop(timer_grupo_e grupo, timer_e timer);
  * 
  * @param grupo Grupo de temporizadores al que pertenece el periférico (TMR_GRUPO_0 o TMR_GRUPO_1).
  * @param timer Temporizador específico dentro del grupo seleccionado (TIMER_0 o TIMER_1).
+ * @param int_type Tipo de interrupcion: LEVEL_INT o EDGE_INT
  * @param callback Puntero a la función (capa superior) que se desea ejecutar al dispararse la alarma.
  * @param arg Puntero genérico opcional con argumentos que se pasarán directamente al callback al ser invocado.
  */
-void timer_setINTR(timer_grupo_e grupo, timer_e timer, timer_intr_callback_t callback, void * arg);
+void timer_setINTR(timer_grupo_e grupo, timer_e timer, tx_int_type_e int_type, timer_intr_callback_t callback, void * arg);
 
 /**
  * @brief Limpia la bandera de interrupción por hardware y rehabilita la alarma del temporizador seleccionado.
