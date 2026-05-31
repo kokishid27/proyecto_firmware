@@ -36,7 +36,7 @@ typedef void (*timer_intr_callback_t)(void* arg);
  * @attention Para configurar y habilitar la interrupcion del temporizador se debe hacer
  * con la funcion: timer_setINTR()
  */
-void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc,uint16_t divisor, uint32_t alarm_val, bool autoreload);
+void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc, uint16_t divisor, uint32_t alarm_val, bool autoreload);
 
 /**
  * @brief Funcion para iniciar la cuenta del temporizador
@@ -73,12 +73,12 @@ void timer_stop(timer_grupo_e grupo, timer_e timer);
 void timer_setINTR(timer_grupo_e grupo, timer_e timer, timer_intr_callback_t callback, void * arg);
 
 /**
- * @brief Limpia la bandera de interrupción por hardware del temporizador seleccionado.
+ * @brief Limpia la bandera de interrupción por hardware y rehabilita la alarma del temporizador seleccionado.
  * 
  * Esta función borra el bit de estado de interrupción (registro INT_CLR) en el periférico. 
  * @note Debe ser llamada de forma estricta dentro de la función ISR (Rutina de 
  * Servicio de Interrupción) para evitar que el microcontrolador se quede atrapado reingresando 
- * al bucle de interrupción indefinidamente.
+ * al bucle de interrupción indefinidamente, o que la alarma no se vuelva activar tras la primera vez.
  * 
  * @param grupo Grupo de temporizadores al que pertenece el periférico (TMR_GRUPO_0 o TMR_GRUPO_1).
  * @param timer Temporizador específico dentro del grupo seleccionado (TIMER_0 o TIMER_1).
