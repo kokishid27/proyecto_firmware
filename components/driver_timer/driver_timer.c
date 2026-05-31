@@ -17,8 +17,8 @@ void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc,uint16_t 
     ptr_tmrG->hw_timer[timer].config.tx_divider = divisor;
     ptr_tmrG->hw_timer[timer].config.tx_increase = (cuenta_desc)? 0 : 1;
     ptr_tmrG->hw_timer[timer].config.tx_autoreload = (autoreload)? 1 : 0;
-    ptr_tmrG->hw_timer[timer].alarmhi.val = 0;
-    ptr_tmrG->hw_timer[timer].alarmlo.val = alarm_val;
+    ptr_tmrG->hw_timer[timer].alarmhi.val = GET_HIGH32B(alarm_val);
+    ptr_tmrG->hw_timer[timer].alarmlo.val = GET_LOW32B(alarm_val);
     ptr_tmrG->hw_timer[timer].config.tx_alarm_en = 1;
     ptr_tmrG->hw_timer[timer].config.tx_level_int_en = 1;
 }

@@ -36,7 +36,7 @@ typedef void (*timer_intr_callback_t)(void* arg);
  * @attention Para configurar y habilitar la interrupcion del temporizador se debe hacer
  * con la funcion: timer_setINTR()
  */
-void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc, uint16_t divisor, uint32_t alarm_val, bool autoreload);
+void timer_config(timer_grupo_e grupo, timer_e timer, bool cuenta_desc, uint16_t divisor, uint64_t alarm_val, bool autoreload);
 
 /**
  * @brief Funcion para iniciar la cuenta del temporizador
