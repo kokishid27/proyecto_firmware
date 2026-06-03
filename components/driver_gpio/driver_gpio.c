@@ -1,4 +1,4 @@
-#include <stdio.h>
+//#include <stdio.h>
 #include "driver_gpio.h"
 
 // Arreglo de IO_MUX para los pines disponibles
@@ -40,26 +40,31 @@ static volatile uint32_t *IO_MUX_MAP[40] = {
 };
 
 // Configuracion de PIN como salida, inicializa valor en LOW
-void gpio_config_out(uint8_t pin)
+gpio_err_e gpio_config_out(uint8_t pin)
 {
 	if (pin <= 31) {
 		GPIO_ENABLE		|= (1 << pin);
 		GPIO_OUT_W1TC	|= (1 << pin);	// estado inicial LOW/0
+        return GPIO_OK;
 	}
 	
 	else if (pin >= 32 && pin <= 39) {
 		GPIO_ENABLE1	|= (1 << (pin - 32));
 		GPIO_OUT1_W1TC	|= (1 << (pin - 32)); // estado inicial LOW
+        return GPIO_OK;
 	}
+
+    else return GPIO_ERR_PIN_NUM;
 }
 
 // Configuracion de PIN como entrada
 // pull_mode = 0: sin pull, 1: pull-up, 2: pull-down
-void gpio_config_in(uint8_t pin, pull_mode_e pull_mode)
+gpio_err_e gpio_config_in(uint8_t pin, pull_mode_e pull_mode)
 {	
-	if (pin > 39 || IO_MUX_MAP[pin] == NULL) return;
+	if (pin > 39 || IO_MUX_MAP[pin] == NULL) return GPIO_ERR_PIN_NUM;
 	
-	GPIO_ENABLE	&= ~(1 << pin);	// deshabilitamos salida en PIN
+	if (pin <= 31) GPIO_ENABLE &= ~(1 << pin);	// deshabilitamos salida en PIN
+    else GPIO_ENABLE1 &= ~(1 << (pin - 32));
 	
 	*IO_MUX_MAP[pin] &= ~MCU_SEL_MASK;
 	*IO_MUX_MAP[pin] |= MCU_SEL_GPIO;
@@ -67,6 +72,8 @@ void gpio_config_in(uint8_t pin, pull_mode_e pull_mode)
 	*IO_MUX_MAP[pin] |= FUN_IE;	// habilitamos como entrada
 	if (pull_mode == PULLUP) 		*IO_MUX_MAP[pin] |= PULL_WPU; // pull-up
 	else if (pull_mode == PULLDOWN) *IO_MUX_MAP[pin] |= PULL_WPD; // pull-down
+
+    return GPIO_OK;
 }
 
 // Funcion de lectura de PIN
@@ -78,15 +85,19 @@ bool gpio_read(uint8_t pin)
 }
 
 // Funcion de escritura en PIN
-void gpio_write(uint8_t pin, uint8_t value)
+gpio_err_e gpio_write(uint8_t pin, bool value)
 {	
 	if (pin <= 31) {
 		if (value) GPIO_OUT_W1TS	|= (1 << pin); // set 1
 		else GPIO_OUT_W1TC			|= (1 << pin); // clear 0
+        return GPIO_OK;
 	}
 	
 	else if (pin >= 32 && pin <= 39) {
 		if (value) GPIO_OUT1_W1TS	|= (1 << (pin - 32)); // set 1
 		else GPIO_OUT1_W1TC			|= (1 << (pin - 32)); // clear 0
+        return GPIO_OK;
 	}
+
+    return GPIO_ERR_PIN_NUM;
 }
