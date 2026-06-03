@@ -14,8 +14,7 @@
  *  REGISTROS GPIO - BANCO 0 (pines 0-31)
  * ========================================================================= */
 #define GPIO_BASE           0x3FF44000UL
-
-#define GPIO_PIN_REG(pin)     (*(volatile uint32_t *)(GPIO_BASE + 0x88 + ((pin) * 4)))
+#define GPIO_PIN_REG(pin)    (*((volatile uint32_t *)((GPIO_BASE + 0x88) + (pin * 4))))
 
 #define GPIO_OUT_W1TS       (*(volatile uint32_t *)(GPIO_BASE + 0x08))
 #define GPIO_OUT_W1TC       (*(volatile uint32_t *)(GPIO_BASE + 0x0C))
@@ -159,20 +158,20 @@ gpio_err_e gpio_write(uint8_t pin, bool value);
  * @brief Instala el servicio de interrupciones GPIO compartido.
  *
  * Debe llamarse UNA sola vez antes de registrar cualquier pin con
- * gpio_intr_set(). Registra la ISR maestra que despacha los callbacks
+ * gpio_drv_intr_set(). Registra la ISR maestra que despacha los callbacks
  * individuales por pin.
  *
  * @param intr_flags  Flags para esp_intr_alloc() (p.ej. ESP_INTR_FLAG_IRAM).
  *                    Pasar 0 para usar los flags por defecto.
  * @return            GPIO_OK, o GPIO_ERR_PARAM si el servicio ya fue instalado.
  */
-gpio_err_e gpio_intr_install(int intr_flags);
+gpio_err_e gpio_drv_intr_install(int intr_flags);
 
 /**
  * @brief Configura la interrupcion de un pin y registra su callback.
  *
  * El pin debe estar previamente configurado como entrada con gpio_config_in().
- * Llama internamente gpio_intr_install() si aun no se hizo.
+ * Llama internamente gpio_drv_intr_install() si aun no se hizo.
  *
  * @param pin        Numero de pin (0-39).
  * @param intr_type  Tipo de disparo (flanco o nivel).
@@ -180,22 +179,22 @@ gpio_err_e gpio_intr_install(int intr_flags);
  * @param arg        Argumento de usuario pasado al callback.
  * @return           GPIO_OK, GPIO_ERR_PIN_NUM o GPIO_ERR_PARAM.
  */
-gpio_err_e gpio_intr_set(uint8_t pin, gpio_intr_type_e intr_type,
-                         gpio_intr_callback_t callback, void *arg);
+gpio_err_e gpio_drv_intr_set(uint8_t pin, gpio_intr_type_e intr_type,
+                              gpio_intr_callback_t callback, void *arg);
 
 /**
  * @brief Habilita la interrupcion de un pin previamente configurado.
  * @param pin  Numero de pin (0-39).
  * @return     GPIO_OK o GPIO_ERR_PIN_NUM.
  */
-gpio_err_e gpio_intr_enable(uint8_t pin);
+gpio_err_e gpio_drv_intr_enable(uint8_t pin);
 
 /**
  * @brief Deshabilita la interrupcion de un pin sin borrar su configuracion.
  * @param pin  Numero de pin (0-39).
  * @return     GPIO_OK o GPIO_ERR_PIN_NUM.
  */
-gpio_err_e gpio_intr_disable(uint8_t pin);
+gpio_err_e gpio_drv_intr_disable(uint8_t pin);
 
 /**
  * @brief Limpia el flag de interrupcion pendiente de un pin.
@@ -206,6 +205,6 @@ gpio_err_e gpio_intr_disable(uint8_t pin);
  * @param pin  Numero de pin (0-39).
  * @return     GPIO_OK o GPIO_ERR_PIN_NUM.
  */
-gpio_err_e gpio_intr_clear(uint8_t pin);
+gpio_err_e gpio_drv_intr_clear(uint8_t pin);
 
 #endif /* DRIVER_GPIO_H */

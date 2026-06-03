@@ -153,7 +153,7 @@ hal_err_e hal_gpio_intr_set(uint8_t pin, hal_gpio_intr_type_e intr_type,
     if (pin > 39)      return HAL_ERR_PIN;
     if (!callback)     return HAL_ERR_PARAM;
 
-    gpio_err_e ret = gpio_intr_set(pin, (gpio_intr_type_e)intr_type, 
+    gpio_err_e ret = gpio_drv_intr_set(pin, (gpio_intr_type_e)intr_type, 
                                    (gpio_intr_callback_t)callback, arg);
     return (ret == GPIO_OK) ? HAL_OK :
            (ret == GPIO_ERR_PIN_NUM) ? HAL_ERR_PIN : HAL_ERR_PARAM;
@@ -162,19 +162,19 @@ hal_err_e hal_gpio_intr_set(uint8_t pin, hal_gpio_intr_type_e intr_type,
 hal_err_e hal_gpio_intr_enable(uint8_t pin)
 {
     if (pin > 39) return HAL_ERR_PIN;
-    return (gpio_intr_enable(pin) == GPIO_OK) ? HAL_OK : HAL_ERR_PIN;
+    return (gpio_drv_intr_enable(pin) == GPIO_OK) ? HAL_OK : HAL_ERR_PIN;
 }
 
 hal_err_e hal_gpio_intr_disable(uint8_t pin)
 {
     if (pin > 39) return HAL_ERR_PIN;
-    return (gpio_intr_disable(pin) == GPIO_OK) ? HAL_OK : HAL_ERR_PIN;
+    return (gpio_drv_intr_disable(pin) == GPIO_OK) ? HAL_OK : HAL_ERR_PIN;
 }
 
 hal_err_e hal_gpio_intr_clear(uint8_t pin)
 {
     if (pin > 39) return HAL_ERR_PIN;
-    return (gpio_intr_clear(pin) == GPIO_OK) ? HAL_OK : HAL_ERR_PIN;
+    return (gpio_drv_intr_clear(pin) == GPIO_OK) ? HAL_OK : HAL_ERR_PIN;
 }
 
 /* =========================================================================
