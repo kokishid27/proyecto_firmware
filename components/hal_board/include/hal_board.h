@@ -57,15 +57,51 @@ typedef enum {
 } hal_gpio_level_e;
 
 /**
+ * @brief Tipo de disparo de la interrupcion GPIO.
+ *
+ * Definido antes de hal_gpio_cfg_t para poder usarlo como campo de la struct.
+ */
+typedef enum {
+    HAL_GPIO_INTR_DISABLE    = 0, /**< Sin interrupcion               */
+    HAL_GPIO_INTR_POS_EDGE   = 1, /**< Flanco ascendente              */
+    HAL_GPIO_INTR_NEG_EDGE   = 2, /**< Flanco descendente             */
+    HAL_GPIO_INTR_ANY_EDGE   = 3, /**< Cualquier flanco               */
+    HAL_GPIO_INTR_LOW_LEVEL  = 4, /**< Nivel bajo (mantenido)         */
+    HAL_GPIO_INTR_HIGH_LEVEL = 5, /**< Nivel alto (mantenido)         */
+} hal_gpio_intr_type_e;
+
+/**
+ * @brief Prototipo del callback de interrupcion GPIO.
+ *
+ * Se ejecuta en contexto de ISR: debe ser breve y declararse IRAM_ATTR.
+ *
+ * @param pin  Pin que genero la interrupcion.
+ * @param arg  Argumento de usuario registrado en hal_gpio_cfg_t.
+ */
+typedef void (*hal_gpio_intr_cb_t)(uint8_t pin, void *arg);
+
+/**
  * @brief Estructura de configuracion de un pin GPIO.
  *
+ * Agrupa la configuracion electrica y la de interrupcion en un solo bloque.
  * Se pasa a hal_gpio_init() para configurar el pin en una sola llamada.
+ *
+ * Campos de interrupcion (intr_type, intr_cb, intr_arg):
+ *   - Solo aplican a pines de entrada (dir == HAL_GPIO_INPUT).
+ *   - Si intr_type == HAL_GPIO_INTR_DISABLE o intr_cb == NULL,
+ *     no se configura ninguna interrupcion.
  */
 typedef struct {
-    uint8_t          pin;       /**< Numero de pin (0-39)          */
-    hal_gpio_dir_e   dir;       /**< Direccion: INPUT u OUTPUT      */
-    hal_gpio_pull_e  pull;      /**< Pull-up, pull-down o ninguno   */
-    hal_gpio_level_e init_val;  /**< Valor inicial (solo salidas)   */
+    /* --- Configuracion electrica --- */
+    uint8_t               pin;       /**< Numero de pin (0-39)                       */
+    hal_gpio_dir_e        dir;       /**< Direccion: INPUT u OUTPUT                  */
+    hal_gpio_pull_e       pull;      /**< Pull-up, pull-down o ninguno               */
+    hal_gpio_level_e      init_val;  /**< Nivel inicial (solo OUTPUT)                */
+
+    /* --- Configuracion de interrupcion (solo INPUT) --- */
+    hal_gpio_intr_type_e  intr_type; /**< Tipo de disparo; DISABLE = sin interrupcion */
+    hal_gpio_intr_cb_t    intr_cb;   /**< Callback ISR (NULL = sin interrupcion)      */
+    void                 *intr_arg;  /**< Argumento de usuario para el callback        */
 } hal_gpio_cfg_t;
 
 /**
@@ -101,6 +137,47 @@ hal_err_e hal_gpio_read(uint8_t pin, hal_gpio_level_e *level);
  * @return     HAL_OK si la operacion fue exitosa, error en caso contrario.
  */
 hal_err_e hal_gpio_toggle(uint8_t pin);
+
+/* --- Interrupciones GPIO ------------------------------------------------- */
+
+/**
+ * @brief Configura la interrupcion de un pin de entrada y registra callback.
+ *
+ * El pin debe estar inicializado como HAL_GPIO_INPUT con hal_gpio_init().
+ * La primera llamada instala automaticamente el servicio de ISR compartido.
+ *
+ * @param pin        Numero de pin (0-39).
+ * @param intr_type  Tipo de disparo.
+ * @param callback   Funcion ISR (debe ser IRAM_ATTR).
+ * @param arg        Argumento de usuario para el callback.
+ * @return           HAL_OK, HAL_ERR_PIN o HAL_ERR_PARAM.
+ */
+hal_err_e hal_gpio_intr_set(uint8_t pin, hal_gpio_intr_type_e intr_type,
+                             hal_gpio_intr_cb_t callback, void *arg);
+
+/**
+ * @brief Habilita la interrupcion de un pin ya configurado.
+ * @param pin  Numero de pin (0-39).
+ * @return     HAL_OK o HAL_ERR_PIN.
+ */
+hal_err_e hal_gpio_intr_enable(uint8_t pin);
+
+/**
+ * @brief Deshabilita temporalmente la interrupcion de un pin.
+ * @param pin  Numero de pin (0-39).
+ * @return     HAL_OK o HAL_ERR_PIN.
+ */
+hal_err_e hal_gpio_intr_disable(uint8_t pin);
+
+/**
+ * @brief Limpia el flag de interrupcion pendiente de un pin.
+ *
+ * Llamar dentro del callback para interrupciones por nivel.
+ *
+ * @param pin  Numero de pin (0-39).
+ * @return     HAL_OK o HAL_ERR_PIN.
+ */
+hal_err_e hal_gpio_intr_clear(uint8_t pin);
 
 /* =========================================================================
  *  HAL TIMER

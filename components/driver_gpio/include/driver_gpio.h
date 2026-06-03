@@ -83,7 +83,7 @@
 #define GPIO_PIN_INT_TYPE_MASK      (0x7 << GPIO_PIN_INT_TYPE_SHIFT)
 
 /* Fuente de interrupcion GPIO en el controlador de interrupciones */
-#define ETS_GPIO_INTR_SOURCE        19  /**< Numero de fuente IRQ GPIO       */
+#define ETS_GPIO_INTR_SOURCE       22  /**< Numero de fuente IRQ GPIO       */
 
 /** @brief Codigos de error del driver GPIO */
 typedef enum {

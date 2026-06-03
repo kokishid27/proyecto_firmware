@@ -89,13 +89,14 @@ static void IRAM_ATTR _gpio_isr_master(void *arg)
 {
     /* --- Banco 0: pines 0-31 --- */
     uint32_t status0 = GPIO_STATUS;
-    GPIO_STATUS_W1TC = status0; /* limpiar flags antes de despachar */
+    GPIO_STATUS_W1TC = status0; /* limpiar flags */
 
     while (status0) {
         /* __builtin_ctz: numero de ceros por la derecha = indice del primer bit */
-        uint8_t pin = (uint8_t)__builtin_ctz(status0);
+        uint8_t pin = (uint8_t)__builtin_ctz(status0);  //10011000
         status0 &= (status0 - 1); /* quitar el bit mas bajo */
-
+ 
+        
         if (_intr_table[pin].active && _intr_table[pin].callback != NULL) {
             _intr_table[pin].callback(pin, _intr_table[pin].arg);
         }

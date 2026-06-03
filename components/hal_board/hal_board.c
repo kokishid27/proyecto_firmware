@@ -12,6 +12,10 @@
 #include "driver_gpio.h"
 #include "driver_timer.h"
 
+/* =========================================================================
+ *  UTILIDADES INTERNAS
+ * ========================================================================= */
+
 /**
  * @brief Tabla de estado interno de los pines de salida.
  *
@@ -57,36 +61,53 @@ static hal_err_e _gpio_err_to_hal(gpio_err_e err)
     }
 }
 
+/* =========================================================================
+ *  IMPLEMENTACION HAL GPIO
+ * ========================================================================= */
+
 hal_err_e hal_gpio_init(const hal_gpio_cfg_t *cfg)
 {
-    if (cfg == NULL)       return HAL_ERR_PARAM;
-    if (cfg->pin > 39)     return HAL_ERR_PIN;
+    if (cfg == NULL)   return HAL_ERR_PARAM;
+    if (cfg->pin > 39) return HAL_ERR_PIN;
 
     gpio_err_e ret;
 
     if (cfg->dir == HAL_GPIO_OUTPUT) {
+
         ret = gpio_config_out(cfg->pin);
         if (ret != GPIO_OK) return _gpio_err_to_hal(ret);
 
-        _gpio_is_output[cfg->pin]  = true;
-        _gpio_out_state[cfg->pin]  = HAL_GPIO_LOW; // gpio_config_out inicializa en LOW
+        _gpio_is_output[cfg->pin] = true;
+        _gpio_out_state[cfg->pin] = HAL_GPIO_LOW; /* gpio_config_out init LOW */
 
-        /* Aplicar valor inicial si se pide HIGH */
+        /* Aplicar nivel inicial si se pide HIGH */
         if (cfg->init_val == HAL_GPIO_HIGH) {
-            return hal_gpio_write(cfg->pin, HAL_GPIO_HIGH);
+            hal_err_e werr = hal_gpio_write(cfg->pin, HAL_GPIO_HIGH);
+            if (werr != HAL_OK) return werr;
         }
-    }
-    else { /* HAL_GPIO_INPUT */
+
+        /* Ignorar campos de interrupcion en pines de salida */
+
+    } else { /* HAL_GPIO_INPUT */
+
         pull_mode_e pull;
         switch (cfg->pull) {
             case HAL_GPIO_PULLUP:   pull = PULLUP;   break;
-            case HAL_GPIO_PULLDOWN: pull = PULLDOWN;  break;
-            default:                pull = NOPULL;    break;
+            case HAL_GPIO_PULLDOWN: pull = PULLDOWN; break;
+            default:                pull = NOPULL;   break;
         }
+
         ret = gpio_config_in(cfg->pin, pull);
         if (ret != GPIO_OK) return _gpio_err_to_hal(ret);
 
         _gpio_is_output[cfg->pin] = false;
+
+        /* Configurar interrupcion si se especifico tipo y callback */
+        if (cfg->intr_type != HAL_GPIO_INTR_DISABLE && cfg->intr_cb != NULL) {
+            hal_err_e ierr = hal_gpio_intr_set(cfg->pin, cfg->intr_type,
+                                               cfg->intr_cb, cfg->intr_arg);
+            if (ierr != HAL_OK) return ierr;
+        }
     }
 
     return HAL_OK;
@@ -123,6 +144,42 @@ hal_err_e hal_gpio_toggle(uint8_t pin)
                                  : HAL_GPIO_HIGH;
     return hal_gpio_write(pin, new_level);
 }
+
+/* --- Interrupciones GPIO ------------------------------------------------- */
+
+hal_err_e hal_gpio_intr_set(uint8_t pin, hal_gpio_intr_type_e intr_type,
+                              hal_gpio_intr_cb_t callback, void *arg)
+{
+    if (pin > 39)      return HAL_ERR_PIN;
+    if (!callback)     return HAL_ERR_PARAM;
+
+    gpio_err_e ret = gpio_intr_set(pin, (gpio_intr_type_e)intr_type, 
+                                   (gpio_intr_callback_t)callback, arg);
+    return (ret == GPIO_OK) ? HAL_OK :
+           (ret == GPIO_ERR_PIN_NUM) ? HAL_ERR_PIN : HAL_ERR_PARAM;
+}
+
+hal_err_e hal_gpio_intr_enable(uint8_t pin)
+{
+    if (pin > 39) return HAL_ERR_PIN;
+    return (gpio_intr_enable(pin) == GPIO_OK) ? HAL_OK : HAL_ERR_PIN;
+}
+
+hal_err_e hal_gpio_intr_disable(uint8_t pin)
+{
+    if (pin > 39) return HAL_ERR_PIN;
+    return (gpio_intr_disable(pin) == GPIO_OK) ? HAL_OK : HAL_ERR_PIN;
+}
+
+hal_err_e hal_gpio_intr_clear(uint8_t pin)
+{
+    if (pin > 39) return HAL_ERR_PIN;
+    return (gpio_intr_clear(pin) == GPIO_OK) ? HAL_OK : HAL_ERR_PIN;
+}
+
+/* =========================================================================
+ *  IMPLEMENTACION HAL TIMER
+ * ========================================================================= */
 
 hal_err_e hal_timer_init(const hal_timer_cfg_t *cfg)
 {
