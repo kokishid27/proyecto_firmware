@@ -72,7 +72,7 @@ static intr_handle_t _gpio_intr_handle = NULL;
  */
 static void _gpio_set_intr_type_reg(uint8_t pin, gpio_intr_type_e type)
 {
-    volatile uint32_t *reg = GPIO_PIN_REG(pin);
+    volatile uint32_t *reg = &GPIO_PIN_REG(pin);
     uint32_t val = *reg;
     val &= ~GPIO_PIN_INT_TYPE_MASK;
     val |= ((uint32_t)type << GPIO_PIN_INT_TYPE_SHIFT);
@@ -172,7 +172,7 @@ gpio_err_e gpio_write(uint8_t pin, bool value)
     return GPIO_ERR_PIN_NUM;
 }
 
-gpio_err_e gpio_intr_install(int intr_flags)
+gpio_err_e gpio_drv_intr_install(int intr_flags)
 {
     if (_gpio_intr_handle != NULL) return GPIO_ERR_PARAM; /* ya instalado */
 
@@ -187,7 +187,7 @@ gpio_err_e gpio_intr_install(int intr_flags)
     return (ret == ESP_OK) ? GPIO_OK : GPIO_ERR_PARAM;
 }
 
-gpio_err_e gpio_intr_set(uint8_t pin, gpio_intr_type_e intr_type,
+gpio_err_e gpio_drv_intr_set(uint8_t pin, gpio_intr_type_e intr_type,
                           gpio_intr_callback_t callback, void *arg)
 {
     if (pin > 39 || IO_MUX_MAP[pin] == NULL) return GPIO_ERR_PIN_NUM;
@@ -195,7 +195,7 @@ gpio_err_e gpio_intr_set(uint8_t pin, gpio_intr_type_e intr_type,
 
     /* Instalar la ISR maestra si todavia no se hizo */
     if (_gpio_intr_handle == NULL) {
-        gpio_err_e ret = gpio_intr_install(0);
+        gpio_err_e ret = gpio_drv_intr_install(0);
         if (ret != GPIO_OK) return ret;
     }
 
@@ -214,7 +214,7 @@ gpio_err_e gpio_intr_set(uint8_t pin, gpio_intr_type_e intr_type,
     return GPIO_OK;
 }
 
-gpio_err_e gpio_intr_enable(uint8_t pin)
+gpio_err_e gpio_drv_intr_enable(uint8_t pin)
 {
     if (pin > 39) return GPIO_ERR_PIN_NUM;
 
@@ -225,7 +225,7 @@ gpio_err_e gpio_intr_enable(uint8_t pin)
     return GPIO_OK;
 }
 
-gpio_err_e gpio_intr_disable(uint8_t pin)
+gpio_err_e gpio_drv_intr_disable(uint8_t pin)
 {
     if (pin > 39) return GPIO_ERR_PIN_NUM;
 
@@ -236,7 +236,7 @@ gpio_err_e gpio_intr_disable(uint8_t pin)
     return GPIO_OK;
 }
 
-gpio_err_e gpio_intr_clear(uint8_t pin)
+gpio_err_e gpio_drv_intr_clear(uint8_t pin)
 {
     if (pin > 39) return GPIO_ERR_PIN_NUM;
 
