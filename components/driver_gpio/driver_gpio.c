@@ -16,10 +16,6 @@
 #include "esp_intr_alloc.h"
 #include "esp_attr.h"       /* IRAM_ATTR */
 
-/* =========================================================================
- *  TABLA IO_MUX (igual que antes)
- * ========================================================================= */
-
 static volatile uint32_t *IO_MUX_MAP[40] = {
     GPIO_IO_MUX_0,   // 0
     NULL,            // 1
@@ -57,11 +53,6 @@ static volatile uint32_t *IO_MUX_MAP[40] = {
     GPIO_IO_MUX_39   // 39
 };
 
-/* =========================================================================
- *  TABLA INTERNA DE INTERRUPCIONES
- * ========================================================================= */
-
-/** Entrada por pin en la tabla de interrupciones */
 typedef struct {
     gpio_intr_callback_t callback;  /**< Funcion de usuario        */
     void                *arg;       /**< Argumento de usuario       */
@@ -72,10 +63,6 @@ static _gpio_intr_entry_t _intr_table[40] = {0};
 
 /** Handle del servicio de interrupciones compartido */
 static intr_handle_t _gpio_intr_handle = NULL;
-
-/* =========================================================================
- *  UTILIDADES INTERNAS
- * ========================================================================= */
 
 /**
  * @brief Escribe el campo INT_TYPE del registro GPIO_PINn.
@@ -91,10 +78,6 @@ static void _gpio_set_intr_type_reg(uint8_t pin, gpio_intr_type_e type)
     val |= ((uint32_t)type << GPIO_PIN_INT_TYPE_SHIFT);
     *reg = val;
 }
-
-/* =========================================================================
- *  ISR MAESTRA  (debe residir en IRAM)
- * ========================================================================= */
 
 /**
  * @brief ISR compartida para todos los pines GPIO.
@@ -132,10 +115,6 @@ static void IRAM_ATTR _gpio_isr_master(void *arg)
         }
     }
 }
-
-/* =========================================================================
- *  FUNCIONES PUBLICAS - CONFIGURACION BASICA
- * ========================================================================= */
 
 gpio_err_e gpio_config_out(uint8_t pin)
 {
@@ -191,10 +170,6 @@ gpio_err_e gpio_write(uint8_t pin, bool value)
     }
     return GPIO_ERR_PIN_NUM;
 }
-
-/* =========================================================================
- *  FUNCIONES PUBLICAS - INTERRUPCIONES
- * ========================================================================= */
 
 gpio_err_e gpio_intr_install(int intr_flags)
 {
