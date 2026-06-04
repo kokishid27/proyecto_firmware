@@ -23,7 +23,7 @@
 
 /* Registros de interrupcion - banco 0 */
 #define GPIO_STATUS         (*(volatile uint32_t *)(GPIO_BASE + 0x44))  /**< Flags de INT pendientes pines 0-31  */
-#define GPIO_STATUS_W1TC    (*(volatile uint32_t *)(GPIO_BASE + 0x48))  /**< Limpiar flags INT (write-1-to-clear) */
+#define GPIO_STATUS_W1TC    (*(volatile uint32_t *)(GPIO_BASE + 0x4C))  /**< Limpiar flags INT (write-1-to-clear) */
 #define GPIO_PIN_BASE       (volatile uint32_t *)(GPIO_BASE + 0x88)     /**< Registro GPIO_PINn: base, +4*n       */
 
 #define GPIO_OUT1_W1TS      (*(volatile uint32_t *)(GPIO_BASE + 0x14))
@@ -71,11 +71,11 @@
 /* =========================================================================
  *  BITS DE CONTROL IO_MUX / GPIO_PIN
  * ========================================================================= */
-#define FUN_IE              (1 << 9)    /**< Habilitar entrada               */
+#define FUN_IE              (1u << 9)    /**< Habilitar entrada               */
 #define PULL_WPU            (1 << 8)    /**< Pull-up interno                 */
-#define PULL_WPD            (1 << 7)    /**< Pull-down interno               */
-#define MCU_SEL_MASK        (0x7 << 12) /**< Mascara de funcion de pin       */
-#define MCU_SEL_GPIO        (0x2 << 12) /**< Funcion GPIO                    */
+#define PULL_WPD            (1u << 7)    /**< Pull-down interno               */
+#define MCU_SEL_MASK        (0x7u << 12) /**< Mascara de funcion de pin       */
+#define MCU_SEL_GPIO        (0x2u << 12) /**< Funcion GPIO                    */
 
 /* Bits del registro GPIO_PINn para interrupcion */
 #define GPIO_PIN_INT_TYPE_SHIFT     7   /**< Posicion del campo INT_TYPE     */

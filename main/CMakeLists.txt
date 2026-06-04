@@ -1,3 +1,3 @@
 idf_component_register(SRCS "main.c"
                     INCLUDE_DIRS "."
-                    REQUIRES driver_gpio)
+                    REQUIRES driver_gpio bsp_board)

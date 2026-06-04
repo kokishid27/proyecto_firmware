@@ -76,6 +76,12 @@ static void _gpio_set_intr_type_reg(uint8_t pin, gpio_intr_type_e type)
     uint32_t val = *reg;
     val &= ~GPIO_PIN_INT_TYPE_MASK;
     val |= ((uint32_t)type << GPIO_PIN_INT_TYPE_SHIFT);
+    
+   if (type == GPIO_INTR_DISABLE) {
+        val &= ~((1u << 15) | (1u << 13)); // Limpiar ruteo a PRO y APP CPU
+    } else {
+        val |= ((1u << 15) | (1u << 13));  // Habilitar ruteo a PRO y APP CPU
+    }
     *reg = val;
 }
 
@@ -87,34 +93,41 @@ static void _gpio_set_intr_type_reg(uint8_t pin, gpio_intr_type_e type)
  */
 static void IRAM_ATTR _gpio_isr_master(void *arg)
 {
-    /* --- Banco 0: pines 0-31 --- */
-    uint32_t status0 = GPIO_STATUS;
-    GPIO_STATUS_W1TC = status0; /* limpiar flags */
+    uint32_t status0;
+    uint32_t status1;
 
-    while (status0) {
-        /* __builtin_ctz: numero de ceros por la derecha = indice del primer bit */
-        uint8_t pin = (uint8_t)__builtin_ctz(status0);  //10011000
-        status0 &= (status0 - 1); /* quitar el bit mas bajo */
- 
-        
-        if (_intr_table[pin].active && _intr_table[pin].callback != NULL) {
-            _intr_table[pin].callback(pin, _intr_table[pin].arg);
+    // Procesar Banco 0 (Pines 0-31)
+    do {
+        status0 = GPIO_STATUS;
+        if (status0) {
+            uint8_t pin = (uint8_t)__builtin_ctz(status0);
+            
+            // 1. Limpiamos EL PIN ESPECÍFICO inmediatamente
+            GPIO_STATUS_W1TC = (1U << pin); 
+
+            // 2. Ejecutamos el callback
+            if (_intr_table[pin].active && _intr_table[pin].callback != NULL) {
+                _intr_table[pin].callback(pin, _intr_table[pin].arg);
+            }
         }
-    }
+    } while (GPIO_STATUS != 0); // Repetir hasta que no haya más flags activos
 
-    /* --- Banco 1: pines 32-39 --- */
-    uint32_t status1 = GPIO_STATUS1;
-    GPIO_STATUS1_W1TC = status1;
+    // Procesar Banco 1 (Pines 32-39)
+    do {
+        status1 = GPIO_STATUS1;
+        if (status1) {
+            uint8_t offset = (uint8_t)__builtin_ctz(status1);
+            uint8_t pin = offset + 32;
 
-    while (status1) {
-        uint8_t offset = (uint8_t)__builtin_ctz(status1);
-        status1 &= (status1 - 1);
-        uint8_t pin = offset + 32;
+            // 1. Limpiamos EL PIN ESPECÍFICO inmediatamente
+            GPIO_STATUS1_W1TC = (1U << offset);
 
-        if (pin <= 39 && _intr_table[pin].active && _intr_table[pin].callback != NULL) {
-            _intr_table[pin].callback(pin, _intr_table[pin].arg);
+            // 2. Ejecutamos el callback
+            if (pin <= 39 && _intr_table[pin].active && _intr_table[pin].callback != NULL) {
+                _intr_table[pin].callback(pin, _intr_table[pin].arg);
+            }
         }
-    }
+    } while (GPIO_STATUS1 != 0); // Repetir hasta que no haya más flags activos
 }
 
 gpio_err_e gpio_config_out(uint8_t pin)
@@ -183,6 +196,9 @@ gpio_err_e gpio_drv_intr_install(int intr_flags)
         NULL,
         &_gpio_intr_handle
     );
+    if (ret != ESP_OK) {
+        printf("ERROR PROFUNDO: esp_intr_alloc fallo con codigo %d\n", ret);
+    }
 
     return (ret == ESP_OK) ? GPIO_OK : GPIO_ERR_PARAM;
 }
@@ -205,8 +221,8 @@ gpio_err_e gpio_drv_intr_set(uint8_t pin, gpio_intr_type_e intr_type,
     _intr_table[pin].active   = true;
 
     /* Limpiar flag previo antes de habilitar */
-    if (pin <= 31) GPIO_STATUS_W1TC  = (1 << pin);
-    else           GPIO_STATUS1_W1TC = (1 << (pin - 32));
+    if (pin <= 31) GPIO_STATUS_W1TC  = (1u << pin);
+    else           GPIO_STATUS1_W1TC = (1u << (pin - 32));
 
     /* Configurar tipo de disparo en el registro GPIO_PINn */
     _gpio_set_intr_type_reg(pin, intr_type);

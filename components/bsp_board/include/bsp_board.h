@@ -7,7 +7,7 @@
 #define BSP_BOARD_H
 
 #include <stdbool.h>
-
+#include "esp_attr.h" /* IRAM_ATTR */
 // *******************************************************************************/
 //  ENUMERACIONES DE COMPONENTES FÍSICOS
 // *******************************************************************************/
@@ -53,5 +53,12 @@ void bsp_led_toggle(bsp_led_t led);
  * @return true si está presionado, false si no lo está.
  */
 bool bsp_button_is_pressed(bsp_button_t btn);
+
+// Definimos un tipo para la función de callback (el "gancho")
+typedef void (*bsp_button_callback_t)(void *arg);
+
+// Agregamos una función para que el main pueda registrar su propio callback
+void bsp_button_register_callback(bsp_button_t btn, bsp_button_callback_t callback, void *arg);
+
 
 #endif /* BSP_BOARD_H */
