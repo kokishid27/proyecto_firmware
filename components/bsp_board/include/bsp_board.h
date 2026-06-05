@@ -41,7 +41,7 @@ bool bsp_board_init(void);
 /**
  * @brief Enciende o apaga un LED específico de la placa.
  */
-void bsp_led_set(bsp_led_t led, bool encender);
+void bsp_led_set(bsp_led_t led, bool level);
 
 /**
  * @brief Invierte el estado actual del LED indicado.

@@ -126,20 +126,16 @@ bool bsp_board_init(void) {
     return true; // Todo se inicializó correctamente
 }
 
-void bsp_led_set(bsp_led_t led, bool encender) {
+void bsp_led_set(bsp_led_t led, bool level) {
     uint8_t pin = bsp_get_led_pin(led);
     if (pin != 255) {
-        hal_gpio_level_e nivel = encender ? HAL_GPIO_HIGH : HAL_GPIO_LOW;
-        hal_gpio_write(pin, nivel);
-        if (pin==PIN_LED_RGB_ROJO || pin==PIN_LED_RGB_VERDE || pin==PIN_LED_RGB_AZUL) {
-            hal_gpio_write(pin, !nivel); // Escribir el nivel deseado
-        }
+            hal_gpio_write(pin, level);
     }
 }
 
 void bsp_led_toggle(bsp_led_t led) {
     uint8_t pin = bsp_get_led_pin(led);
-    if (pin != 255  && PIN_LED_RGB_ROJO != pin && PIN_LED_RGB_VERDE != pin && PIN_LED_RGB_AZUL != pin) {
+    if (pin != 255) {
         hal_gpio_toggle(pin);
     }
 }
