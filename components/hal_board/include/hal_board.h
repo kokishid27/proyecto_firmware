@@ -41,6 +41,17 @@ typedef enum {
 } hal_gpio_pull_e;
 
 /**
+ * 
+ * @brief Direccion del pin GPIO.
+ 
+ */
+
+typedef enum {
+    HAL_NEGATIVE_LOGIC = 0, /**< Logica negativa: LOW=ON, HIGH=OFF */
+    HAL_POSITIVE_LOGIC = 1, /**< Logica positiva: HIGH=ON, LOW=OFF */
+} hal_gpio_type_logic_e;
+
+/**
  * @brief Direccion del pin GPIO.
  */
 typedef enum {
@@ -97,6 +108,7 @@ typedef struct {
     hal_gpio_dir_e        dir;       /**< Direccion: INPUT u OUTPUT                  */
     hal_gpio_pull_e       pull;      /**< Pull-up, pull-down o ninguno               */
     hal_gpio_level_e      init_val;  /**< Nivel inicial (solo OUTPUT)                */
+    hal_gpio_type_logic_e logic_type; /**< Tipo de logica (solo OUTPUT)                */
 
     /* --- Configuracion de interrupcion (solo INPUT) --- */
     hal_gpio_intr_type_e  intr_type; /**< Tipo de disparo; DISABLE = sin interrupcion */
