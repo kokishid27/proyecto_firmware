@@ -28,6 +28,8 @@ static hal_gpio_level_e _gpio_out_state[40] = {HAL_GPIO_LOW};
 /** Marca si un pin fue inicializado como OUTPUT */
 static bool _gpio_is_output[40] = {false};
 
+static hal_gpio_type_logic_e _gpio_logic[40] = {HAL_POSITIVE_LOGIC};
+
 /**
  * @brief Descompone un hal_timer_id_e en grupo y timer del driver.
  *
@@ -73,24 +75,18 @@ hal_err_e hal_gpio_init(const hal_gpio_cfg_t *cfg)
     gpio_err_e ret;
 
     if (cfg->dir == HAL_GPIO_OUTPUT) {
+        _gpio_logic[cfg->pin] = cfg->logic_type;
 
         ret = gpio_config_out(cfg->pin);
         if (ret != GPIO_OK) return _gpio_err_to_hal(ret);
-        if (cfg->logic_type == HAL_POSITIVE_LOGIC) {
-            _gpio_is_output[cfg->pin] = true;
-            _gpio_out_state[cfg->pin] = HAL_GPIO_LOW; /* gpio_config_out init LOW */
-        }
-        else {
-                _gpio_is_output[cfg->pin] = true;
-                _gpio_out_state[cfg->pin] = HAL_GPIO_HIGH; /* Invertimos el nivel inicial para logica negativa */
-        }
+        _gpio_is_output[cfg->pin] = true;
 
         /* Aplicar nivel inicial si se pide HIGH */
-        if (cfg->init_val == HAL_GPIO_HIGH && cfg->logic_type == HAL_POSITIVE_LOGIC) {
+        if (cfg->init_val == HAL_GPIO_HIGH) {
              hal_err_e werr = hal_gpio_write(cfg->pin, HAL_GPIO_HIGH);
             if (werr != HAL_OK) return werr;
         }
-        else if (cfg->init_val == HAL_GPIO_HIGH && cfg->logic_type == HAL_NEGATIVE_LOGIC) {
+        else if (cfg->init_val == HAL_GPIO_LOW) {
              hal_err_e werr = hal_gpio_write(cfg->pin, HAL_GPIO_LOW);
             if (werr != HAL_OK) return werr;
         }
@@ -126,7 +122,11 @@ hal_err_e hal_gpio_write(uint8_t pin, hal_gpio_level_e level)
 {
     if (pin > 39)              return HAL_ERR_PIN;
     if (!_gpio_is_output[pin]) return HAL_ERR_NOT_INIT;
+    if (_gpio_logic[pin] == HAL_NEGATIVE_LOGIC) {
+        level = !level;
+    }
     gpio_err_e ret = gpio_write(pin, (bool)level);
+
     if (ret != GPIO_OK) return _gpio_err_to_hal(ret);
 
     _gpio_out_state[pin] = level;
