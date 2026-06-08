@@ -17,10 +17,10 @@ typedef enum {
     BSP_LED_RGB_ROJO,
     BSP_LED_RGB_VERDE,
     BSP_LED_RGB_AZUL,
-    BSP_LED_4,
-    BSP_LED_5,
-    BSP_LED_16,
-    BSP_LED_17
+    BSP_LED_1,
+    BSP_LED_2,
+    BSP_LED_3,
+    BSP_LED_4
 } bsp_led_t;
 
 typedef enum {

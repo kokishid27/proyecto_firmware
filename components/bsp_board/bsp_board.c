@@ -18,10 +18,10 @@
 #define PIN_LED_RGB_ROJO    14
 #define PIN_LED_RGB_VERDE   13
 #define PIN_LED_RGB_AZUL    12
-#define PIN_LED_4           4
-#define PIN_LED_5           2
-#define PIN_LED_16          16
-#define PIN_LED_17          17
+#define PIN_LED_4           2
+#define PIN_LED_3           4
+#define PIN_LED_2          16
+#define PIN_LED_1          17
 
 #define NUM_BUTTONS 2
 static bsp_button_callback_t cb_boton [NUM_BUTTONS] = {NULL};
@@ -39,9 +39,9 @@ static uint8_t bsp_get_led_pin(bsp_led_t led) {
         case BSP_LED_RGB_VERDE: return PIN_LED_RGB_VERDE;
         case BSP_LED_RGB_AZUL:  return PIN_LED_RGB_AZUL;
         case BSP_LED_4:         return PIN_LED_4;
-        case BSP_LED_5:         return PIN_LED_5;
-        case BSP_LED_16:        return PIN_LED_16;
-        case BSP_LED_17:        return PIN_LED_17;
+        case BSP_LED_3:         return PIN_LED_3;
+        case BSP_LED_2:         return PIN_LED_2;
+        case BSP_LED_1:         return PIN_LED_1;
         default:                return 255; // Pin inválido
     }
 }
@@ -93,7 +93,7 @@ bool bsp_board_init(void) {
 
     // Arreglo temporal para inicializar rápidamente todos los LEDs en un bucle
     uint8_t pines_leds[] = {
-        PIN_LED_SISTEMA, PIN_LED_4, PIN_LED_5, PIN_LED_16, PIN_LED_17
+        PIN_LED_SISTEMA, PIN_LED_1, PIN_LED_2, PIN_LED_3, PIN_LED_4
     };
     uint8_t pines_rgb[] = {
         PIN_LED_RGB_ROJO, PIN_LED_RGB_VERDE, PIN_LED_RGB_AZUL
