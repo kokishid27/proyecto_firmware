@@ -33,7 +33,7 @@ static void IRAM_ATTR isr_btn1(void *arg)
     static uint32_t ultimo_disparo = 0; 
     uint32_t tiempo_actual = xTaskGetTickCountFromISR();
 
-    if ((tiempo_actual - ultimo_disparo) > pdMS_TO_TICKS(1000)) {
+    if ((tiempo_actual - ultimo_disparo) > pdMS_TO_TICKS(700)) {
         if (!flag_btn1) flag_btn1 = true;
         ultimo_disparo = tiempo_actual;
     }

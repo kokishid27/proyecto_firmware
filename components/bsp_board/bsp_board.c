@@ -18,8 +18,8 @@
 #define PIN_LED_RGB_ROJO    14
 #define PIN_LED_RGB_VERDE   13
 #define PIN_LED_RGB_AZUL    12
-#define PIN_LED_4           4
-#define PIN_LED_5           2
+#define PIN_LED_4           2
+#define PIN_LED_5           4
 #define PIN_LED_16          16
 #define PIN_LED_17          17
 
@@ -39,9 +39,9 @@ static uint8_t bsp_get_led_pin(bsp_led_t led) {
         case BSP_LED_RGB_VERDE: return PIN_LED_RGB_VERDE;
         case BSP_LED_RGB_AZUL:  return PIN_LED_RGB_AZUL;
         case BSP_LED_4:         return PIN_LED_4;
-        case BSP_LED_5:         return PIN_LED_5;
-        case BSP_LED_16:        return PIN_LED_16;
-        case BSP_LED_17:        return PIN_LED_17;
+        case BSP_LED_3:         return PIN_LED_5;
+        case BSP_LED_2:        return PIN_LED_16;
+        case BSP_LED_1:        return PIN_LED_17;
         default:                return 255; // Pin inválido
     }
 }
