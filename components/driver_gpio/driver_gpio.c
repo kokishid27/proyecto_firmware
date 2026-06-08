@@ -107,7 +107,7 @@ static void IRAM_ATTR _gpio_isr_master(void *arg)
 
             // 2. Ejecutamos el callback
             if (_intr_table[pin].active && _intr_table[pin].callback != NULL) {
-                _intr_table[pin].callback(pin, _intr_table[pin].arg);
+                _intr_table[pin].callback( _intr_table[pin].arg);
             }
         }
     } while (GPIO_STATUS != 0); // Repetir hasta que no haya más flags activos
@@ -124,7 +124,7 @@ static void IRAM_ATTR _gpio_isr_master(void *arg)
 
             // 2. Ejecutamos el callback
             if (pin <= 39 && _intr_table[pin].active && _intr_table[pin].callback != NULL) {
-                _intr_table[pin].callback(pin, _intr_table[pin].arg);
+                _intr_table[pin].callback(_intr_table[pin].arg);
             }
         }
     } while (GPIO_STATUS1 != 0); // Repetir hasta que no haya más flags activos
@@ -132,25 +132,25 @@ static void IRAM_ATTR _gpio_isr_master(void *arg)
 
 gpio_err_e gpio_config_out(uint8_t pin)
 {
-    if (pin <= 31) {
-        GPIO_ENABLE    |= (1 << pin);
-        GPIO_OUT_W1TC  |= (1 << pin); /* estado inicial LOW */
-        return GPIO_OK;
-    }
-    else if (pin >= 32 && pin <= 39) {
-        GPIO_ENABLE1   |= (1 << (pin - 32));
-        GPIO_OUT1_W1TC |= (1 << (pin - 32));
-        return GPIO_OK;
-    }
-    return GPIO_ERR_PIN_NUM;
+    if (pin > 39 || IO_MUX_MAP[pin] == NULL) return GPIO_ERR_PIN_NUM;
+
+    if (pin <= 31) GPIO_ENABLE  |= (1u << pin);
+    else           GPIO_ENABLE1 |= (1u << (pin - 32));
+
+    *IO_MUX_MAP[pin] &= ~MCU_SEL_MASK;
+    *IO_MUX_MAP[pin] |=  MCU_SEL_GPIO;
+    *IO_MUX_MAP[pin] &= ~(PULL_WPU | PULL_WPD);
+
+    return GPIO_OK;
+
 }
 
 gpio_err_e gpio_config_in(uint8_t pin, pull_mode_e pull_mode)
 {
     if (pin > 39 || IO_MUX_MAP[pin] == NULL) return GPIO_ERR_PIN_NUM;
 
-    if (pin <= 31) GPIO_ENABLE  &= ~(1 << pin);
-    else           GPIO_ENABLE1 &= ~(1 << (pin - 32));
+    if (pin <= 31) GPIO_ENABLE  &= ~(1u << pin);
+    else           GPIO_ENABLE1 &= ~(1u << (pin - 32));
 
     *IO_MUX_MAP[pin] &= ~MCU_SEL_MASK;
     *IO_MUX_MAP[pin] |=  MCU_SEL_GPIO;
@@ -165,21 +165,21 @@ gpio_err_e gpio_config_in(uint8_t pin, pull_mode_e pull_mode)
 
 bool gpio_read(uint8_t pin)
 {
-    if (pin <= 31)            return (GPIO_IN  & (1 <<  pin))       ? true : false;
-    else if (pin <= 39)       return (GPIO_IN1 & (1 << (pin - 32))) ? true : false;
+    if (pin <= 31)            return (GPIO_IN  & (1u <<  pin))       ? true : false;
+    else if (pin <= 39)       return (GPIO_IN1 & (1u << (pin - 32))) ? true : false;
     return false;
 }
 
 gpio_err_e gpio_write(uint8_t pin, bool value)
 {
     if (pin <= 31) {
-        if (value) GPIO_OUT_W1TS  |= (1 << pin);
-        else       GPIO_OUT_W1TC  |= (1 << pin);
+        if (value) GPIO_OUT_W1TS  |= (1u << pin);
+        else       GPIO_OUT_W1TC  |= (1u << pin);
         return GPIO_OK;
     }
     else if (pin >= 32 && pin <= 39) {
-        if (value) GPIO_OUT1_W1TS |= (1 << (pin - 32));
-        else       GPIO_OUT1_W1TC |= (1 << (pin - 32));
+        if (value) GPIO_OUT1_W1TS |= (1u << (pin - 32));
+        else       GPIO_OUT1_W1TC |= (1u << (pin - 32));
         return GPIO_OK;
     }
     return GPIO_ERR_PIN_NUM;
