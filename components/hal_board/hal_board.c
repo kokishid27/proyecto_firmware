@@ -200,6 +200,7 @@ hal_err_e hal_timer_init(const hal_timer_cfg_t *cfg)
     timer_config(grupo, timer,
                  cfg->count_down,
                  cfg->divisor,
+                 
                  cfg->alarm_val,
                  cfg->autoreload,
                  cfg->alarm_en);

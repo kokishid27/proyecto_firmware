@@ -38,6 +38,12 @@ typedef enum {
  */
 bool bsp_board_init(void);
 
+/** 
+ * @brief enciende y apaga un led rg
+ * @param rojo, verde, azul: booleanos para cada color del led rgb
+ */
+void bsp_led_rgb_set(bool rojo, bool verde, bool azul);
+
 /**
  * @brief Enciende o apaga un LED específico de la placa.
  */

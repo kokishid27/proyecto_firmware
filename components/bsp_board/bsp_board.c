@@ -12,14 +12,14 @@
 //  MAPEADO FÍSICO (Privado para el BSP)
 //***************** */
 
-#define PIN_LED_SISTEMA     2
+#define PIN_LED_SISTEMA     5
 #define PIN_BUTTON_1        18
 #define PIN_BUTTON_2        19
-#define PIN_LED_RGB_ROJO    12
+#define PIN_LED_RGB_ROJO    14
 #define PIN_LED_RGB_VERDE   13
-#define PIN_LED_RGB_AZUL    14
+#define PIN_LED_RGB_AZUL    12
 #define PIN_LED_4           4
-#define PIN_LED_5           5
+#define PIN_LED_5           2
 #define PIN_LED_16          16
 #define PIN_LED_17          17
 
@@ -57,7 +57,7 @@ static uint8_t bsp_get_button_pin(bsp_button_t btn) {
 
 
 // Esta es la ISR real conectada al hardware
-static void IRAM_ATTR isr_button_handler(uint8_t pin, void *arg) {
+static void IRAM_ATTR isr_button_handler( void *arg) {
     bsp_button_t btn = (bsp_button_t)(uintptr_t)arg;
 
     // Validación de seguridad y ejecución directa
@@ -84,19 +84,30 @@ bool bsp_board_init(void) {
     // 1. Configurar LEDs (Salidas, sin pull, inician apagados)
     hal_gpio_cfg_t led_cfg = {
         .dir = HAL_GPIO_OUTPUT,
-        .pull = HAL_GPIO_NOPULL,
+         .logic_type=HAL_POSITIVE_LOGIC // Activo Alto
     };
+    hal_gpio_cfg_t rgb_cfg = {
+        .dir = HAL_GPIO_OUTPUT,
+        .logic_type=HAL_NEGATIVE_LOGIC // Activo Bajo
+     };
 
     // Arreglo temporal para inicializar rápidamente todos los LEDs en un bucle
     uint8_t pines_leds[] = {
-        PIN_LED_SISTEMA, PIN_LED_RGB_ROJO, PIN_LED_RGB_VERDE, PIN_LED_RGB_AZUL,
-        PIN_LED_4, PIN_LED_5, PIN_LED_16, PIN_LED_17
+        PIN_LED_SISTEMA, PIN_LED_4, PIN_LED_5, PIN_LED_16, PIN_LED_17
+    };
+    uint8_t pines_rgb[] = {
+        PIN_LED_RGB_ROJO, PIN_LED_RGB_VERDE, PIN_LED_RGB_AZUL
     };
 
+    for(int i = 0; i < (sizeof(pines_rgb)/sizeof(pines_rgb[0])); i++) {
+        rgb_cfg.pin = pines_rgb[i];
+        if (hal_gpio_init(&rgb_cfg) != HAL_OK) return false;
+    }
     for(int i = 0; i < (sizeof(pines_leds)/sizeof(pines_leds[0])); i++) {
         led_cfg.pin = pines_leds[i];
         if (hal_gpio_init(&led_cfg) != HAL_OK) return false;
     }
+    
 
      hal_gpio_cfg_t btn1_cfg[2] = {
         {
@@ -112,9 +123,6 @@ bool bsp_board_init(void) {
             .pin = PIN_BUTTON_2,
             .dir = HAL_GPIO_INPUT,
             .pull = HAL_GPIO_PULLUP, // Usamos Pull-Up para que el estado normal sea HIGH
-            .intr_type = HAL_GPIO_INTR_NEG_EDGE, // Interrupción por flanco de bajada (presionar el botón)
-            .intr_cb = isr_button_handler, // Nuestra función ISR común para ambos botones
-            .intr_arg = (void *)(uintptr_t)BSP_BUTTON_2 // Pasamos el identificador del botón como argumento
         }
     };
 
@@ -139,6 +147,11 @@ void bsp_led_toggle(bsp_led_t led) {
         hal_gpio_toggle(pin);
     }
 }
+void bsp_led_rgb_set(bool rojo, bool verde, bool azul) {
+            hal_gpio_write(BSP_LED_RGB_ROJO, rojo);
+            hal_gpio_write(BSP_LED_RGB_VERDE, verde);
+            hal_gpio_write(BSP_LED_RGB_AZUL, azul);
+}
 
 bool bsp_button_is_pressed(bsp_button_t btn) {
     uint8_t pin = bsp_get_button_pin(btn);
@@ -146,7 +159,5 @@ bool bsp_button_is_pressed(bsp_button_t btn) {
 
     hal_gpio_level_e estado;
     hal_gpio_read(pin, &estado);
-
-    // Si usamos Pull-Up, presionar el botón conecta a GND (LOW), por lo tanto:
-    return (estado == HAL_GPIO_LOW); 
+    return (estado == HAL_GPIO_LOW); // Botón presionado si el estado es LOW (Pull-Up)
 }

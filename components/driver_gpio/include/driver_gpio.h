@@ -40,39 +40,41 @@
  * ========================================================================= */
 #define IO_MUX_BASE         0x3FF49000UL
 
-#define GPIO_IO_MUX_0       ((volatile uint32_t *)(IO_MUX_BASE + 0x44))
-#define GPIO_IO_MUX_2       ((volatile uint32_t *)(IO_MUX_BASE + 0x40))
-#define GPIO_IO_MUX_4       ((volatile uint32_t *)(IO_MUX_BASE + 0x48))
-#define GPIO_IO_MUX_5       ((volatile uint32_t *)(IO_MUX_BASE + 0x6C))
-#define GPIO_IO_MUX_12      ((volatile uint32_t *)(IO_MUX_BASE + 0x04))
-#define GPIO_IO_MUX_13      ((volatile uint32_t *)(IO_MUX_BASE + 0x08))
-#define GPIO_IO_MUX_14      ((volatile uint32_t *)(IO_MUX_BASE + 0x0C))
-#define GPIO_IO_MUX_16      ((volatile uint32_t *)(IO_MUX_BASE + 0x10))
-#define GPIO_IO_MUX_17      ((volatile uint32_t *)(IO_MUX_BASE + 0x14))
-#define GPIO_IO_MUX_18      ((volatile uint32_t *)(IO_MUX_BASE + 0x18))
-#define GPIO_IO_MUX_19      ((volatile uint32_t *)(IO_MUX_BASE + 0x1C))
-#define GPIO_IO_MUX_20      ((volatile uint32_t *)(IO_MUX_BASE + 0x20))
-#define GPIO_IO_MUX_21      ((volatile uint32_t *)(IO_MUX_BASE + 0x24))
-#define GPIO_IO_MUX_22      ((volatile uint32_t *)(IO_MUX_BASE + 0x28))
-#define GPIO_IO_MUX_23      ((volatile uint32_t *)(IO_MUX_BASE + 0x2C))
-#define GPIO_IO_MUX_24      ((volatile uint32_t *)(IO_MUX_BASE + 0x30))
-#define GPIO_IO_MUX_25      ((volatile uint32_t *)(IO_MUX_BASE + 0x34))
-#define GPIO_IO_MUX_26      ((volatile uint32_t *)(IO_MUX_BASE + 0x38))
-#define GPIO_IO_MUX_27      ((volatile uint32_t *)(IO_MUX_BASE + 0x3C))
-#define GPIO_IO_MUX_32      ((volatile uint32_t *)(IO_MUX_BASE + 0x58))
-#define GPIO_IO_MUX_33      ((volatile uint32_t *)(IO_MUX_BASE + 0x5C))
-#define GPIO_IO_MUX_34      ((volatile uint32_t *)(IO_MUX_BASE + 0x60))
-#define GPIO_IO_MUX_35      ((volatile uint32_t *)(IO_MUX_BASE + 0x64))
-#define GPIO_IO_MUX_36      ((volatile uint32_t *)(IO_MUX_BASE + 0x68))
-#define GPIO_IO_MUX_37      ((volatile uint32_t *)(IO_MUX_BASE + 0x50))
-#define GPIO_IO_MUX_38      ((volatile uint32_t *)(IO_MUX_BASE + 0x54))
-#define GPIO_IO_MUX_39      ((volatile uint32_t *)(IO_MUX_BASE + 0x70))
+#define HWREG32VAL(x)	(*((volatile uint32_t *)(x)))
+#define HWREG32(x)		((volatile uint32_t *)(x))
+#define GPIO_IO_MUX_36	(HWREG32(0x3FF49004))
+#define GPIO_IO_MUX_37	(HWREG32(0x3FF49008))
+#define GPIO_IO_MUX_38	(HWREG32(0x3FF4900C))
+#define GPIO_IO_MUX_39	(HWREG32(0x3FF49010))
+#define GPIO_IO_MUX_34	(HWREG32(0x3FF49014))
+#define GPIO_IO_MUX_35	(HWREG32(0x3FF49018))
+#define GPIO_IO_MUX_32	(HWREG32(0x3FF4901C))
+#define GPIO_IO_MUX_33	(HWREG32(0x3FF49020))
+#define GPIO_IO_MUX_25	(HWREG32(0x3FF49024))
+#define GPIO_IO_MUX_26	(HWREG32(0x3FF49028))
+#define GPIO_IO_MUX_27	(HWREG32(0x3FF4902C))
+#define GPIO_IO_MUX_2	(HWREG32(0x3FF49040))
+#define GPIO_IO_MUX_0	(HWREG32(0x3FF49044))
+#define GPIO_IO_MUX_4	(HWREG32(0x3FF49048))
+#define GPIO_IO_MUX_16	(HWREG32(0x3FF4904C))
+#define GPIO_IO_MUX_17	(HWREG32(0x3FF49050))
+#define GPIO_IO_MUX_5	(HWREG32(0x3FF4906C))
+#define GPIO_IO_MUX_18	(HWREG32(0x3FF49070))
+#define GPIO_IO_MUX_19	(HWREG32(0x3FF49074))
+#define GPIO_IO_MUX_20	(HWREG32(0x3FF49078))
+#define GPIO_IO_MUX_21	(HWREG32(0x3FF4907C))
+#define GPIO_IO_MUX_22	(HWREG32(0x3FF49080))
+#define GPIO_IO_MUX_23	(HWREG32(0x3FF4908C))
+#define GPIO_IO_MUX_24	(HWREG32(0x3FF49090))
+#define GPIO_IO_MUX_12	(HWREG32(0x3FF49034))
+#define GPIO_IO_MUX_13	(HWREG32(0x3FF49038))
+#define GPIO_IO_MUX_14	(HWREG32(0x3FF49030))
 
 /* =========================================================================
  *  BITS DE CONTROL IO_MUX / GPIO_PIN
  * ========================================================================= */
 #define FUN_IE              (1u << 9)    /**< Habilitar entrada               */
-#define PULL_WPU            (1 << 8)    /**< Pull-up interno                 */
+#define PULL_WPU            (1u << 8)    /**< Pull-up interno                 */
 #define PULL_WPD            (1u << 7)    /**< Pull-down interno               */
 #define MCU_SEL_MASK        (0x7u << 12) /**< Mascara de funcion de pin       */
 #define MCU_SEL_GPIO        (0x2u << 12) /**< Funcion GPIO                    */
@@ -122,7 +124,7 @@ typedef enum {
  * @param pin  Numero de pin que genero la interrupcion.
  * @param arg  Argumento de usuario registrado con gpio_intr_set().
  */
-typedef void (*gpio_intr_callback_t)(uint8_t pin, void *arg);
+typedef void (*gpio_intr_callback_t)( void *arg);
 
 /**
  * @brief Configura un pin como salida e inicializa su nivel en LOW.

@@ -86,10 +86,9 @@ typedef enum {
  *
  * Se ejecuta en contexto de ISR: debe ser breve y declararse IRAM_ATTR.
  *
- * @param pin  Pin que genero la interrupcion.
  * @param arg  Argumento de usuario registrado en hal_gpio_cfg_t.
  */
-typedef void (*hal_gpio_intr_cb_t)(uint8_t pin, void *arg);
+typedef void (*hal_gpio_intr_cb_t)(void *arg);
 
 /**
  * @brief Estructura de configuracion de un pin GPIO.
