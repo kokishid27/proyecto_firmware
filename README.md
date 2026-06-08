@@ -35,7 +35,7 @@ Application
 - `main`: versión estable.
 - `develop`: integración de funcionalidades.
 - `feature/*`: nuevas características.
-- `bugfix/*`: corrección de errores.
+- `feature/bugfix/*`: corrección de errores.
 
 
 
