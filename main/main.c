@@ -27,13 +27,15 @@ static void IRAM_ATTR isr_timer0(void *arg)
 // ISR para el Botón 1 
 static void IRAM_ATTR isr_btn1(void *arg) 
 {
-    static uint32_t ultimo_disparo = 0; 
-    uint32_t tiempo_actual = xTaskGetTickCountFromISR();
+    static bool state_btn1_old = true;
 
-    if ((tiempo_actual - ultimo_disparo) > pdMS_TO_TICKS(300)) {
+    bool new_state = bsp_button_is_pressed(BSP_BUTTON_1);
+
+    if (state_btn1_old && new_state) {
         flag_btn1 = true;
-        ultimo_disparo = tiempo_actual;
     }
+
+    state_btn1_old = new_state;
 }
 
 
