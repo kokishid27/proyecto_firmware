@@ -38,9 +38,7 @@
 /* =========================================================================
  *  REGISTROS IO_MUX (un registro por pin fisico)
  * ========================================================================= */
-#define IO_MUX_BASE         0x3FF49000UL
 
-#define HWREG32VAL(x)	(*((volatile uint32_t *)(x)))
 #define HWREG32(x)		((volatile uint32_t *)(x))
 #define GPIO_IO_MUX_36	(HWREG32(0x3FF49004))
 #define GPIO_IO_MUX_37	(HWREG32(0x3FF49008))

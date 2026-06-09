@@ -19,9 +19,9 @@
 #define PIN_LED_RGB_VERDE   13
 #define PIN_LED_RGB_AZUL    12
 #define PIN_LED_4           2
-#define PIN_LED_3           4
-#define PIN_LED_2          16
-#define PIN_LED_1          17
+#define PIN_LED_5           4
+#define PIN_LED_16          16
+#define PIN_LED_17          17
 
 #define NUM_BUTTONS 2
 static bsp_button_callback_t cb_boton [NUM_BUTTONS] = {NULL};
@@ -39,9 +39,9 @@ static uint8_t bsp_get_led_pin(bsp_led_t led) {
         case BSP_LED_RGB_VERDE: return PIN_LED_RGB_VERDE;
         case BSP_LED_RGB_AZUL:  return PIN_LED_RGB_AZUL;
         case BSP_LED_4:         return PIN_LED_4;
-        case BSP_LED_3:         return PIN_LED_3;
-        case BSP_LED_2:         return PIN_LED_2;
-        case BSP_LED_1:         return PIN_LED_1;
+        case BSP_LED_3:         return PIN_LED_5;
+        case BSP_LED_2:        return PIN_LED_16;
+        case BSP_LED_1:        return PIN_LED_17;
         default:                return 255; // Pin inválido
     }
 }
