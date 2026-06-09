@@ -93,7 +93,7 @@ bool bsp_board_init(void) {
 
     // Arreglo temporal para inicializar rápidamente todos los LEDs en un bucle
     uint8_t pines_leds[] = {
-        PIN_LED_SISTEMA, PIN_LED_4, PIN_LED_5, PIN_LED_16, PIN_LED_17
+        PIN_LED_SISTEMA, PIN_LED_1, PIN_LED_2, PIN_LED_3, PIN_LED_4
     };
     uint8_t pines_rgb[] = {
         PIN_LED_RGB_ROJO, PIN_LED_RGB_VERDE, PIN_LED_RGB_AZUL
