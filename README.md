@@ -6,6 +6,7 @@ Proyecto académico enfocado en el desarrollo de firmware desde cero para la ESP
 
 - Jorge Habib Hernandez Rojas
 - Hector Rodrigo Teruel Grado
+- Diego Alejandro Saenz Duarte
 
 ## Objetivos
 
