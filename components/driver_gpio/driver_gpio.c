@@ -16,6 +16,8 @@
 #include "esp_intr_alloc.h"
 #include "esp_attr.h"       /* IRAM_ATTR */
 
+#define NUCLEO_PRO_APP ((1U << 15) | (1U << 13))
+
 static volatile uint32_t *IO_MUX_MAP[40] = {
     GPIO_IO_MUX_0,   // 0
     NULL,            // 1
@@ -78,9 +80,9 @@ static void _gpio_set_intr_type_reg(uint8_t pin, gpio_intr_type_e type)
     val |= ((uint32_t)type << GPIO_PIN_INT_TYPE_SHIFT);
     
    if (type == GPIO_INTR_DISABLE) {
-        val &= ~((1u << 15) | (1u << 13)); // Limpiar ruteo a PRO y APP CPU
+        val &= ~NUCLEO_PRO_APP; // Limpiar ruteo a PRO y APP CPU
     } else {
-        val |= ((1u << 15) | (1u << 13));  // Habilitar ruteo a PRO y APP CPU
+        val |= NUCLEO_PRO_APP;  // Habilitar ruteo a PRO y APP CPU
     }
     *reg = val;
 }
