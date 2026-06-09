@@ -78,11 +78,14 @@ static void _gpio_set_intr_type_reg(uint8_t pin, gpio_intr_type_e type)
     uint32_t val = *reg;
     val &= ~GPIO_PIN_INT_TYPE_MASK;
     val |= ((uint32_t)type << GPIO_PIN_INT_TYPE_SHIFT);
-    
-   if (type == GPIO_INTR_DISABLE) {
-        val &= ~NUCLEO_PRO_APP; // Limpiar ruteo a PRO y APP CPU
-    } else {
-        val |= NUCLEO_PRO_APP;  // Habilitar ruteo a PRO y APP CPU
+    if (type == GPIO_INTR_DISABLE) {
+            int core_id = xPortGetCoreID(); // Obtiene el id del nucleo que procesa la linea
+                                            // el PRO (0) o el APP (1)
+            if (core_id == 0) {
+                val |= (1u << 15); // Solo encender la alarma para el PRO CPU
+            } else {
+                val |= (1u << 13); // Solo encender la alarma para el APP CPU
+            }
     }
     *reg = val;
 }
