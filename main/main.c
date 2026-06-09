@@ -2,7 +2,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_attr.h"
-
+#include "esp_rom_sys.h"
 // Inclusión del BSP para el hardware de la placa (LEDs, Botones)
 #include "bsp_board.h"
 // Inclusión del HAL para los periféricos internos del chip (Timers)
@@ -12,38 +12,38 @@
 volatile bool flag_btn1 = false;
 volatile bool flag_timer0 = false;
 
-/* RUTINAS DE SERVICIO DE INTERRUPCIÓN (ISR)*/
 
-//  ISR para el Timer de Hardware 
+bsp_led_t leds[4] = {BSP_LED_1, BSP_LED_2, BSP_LED_3, BSP_LED_4}; // Arreglo de LEDs para iterar fácilmente
+
+/* --- 2. RUTINAS DE SERVICIO DE INTERRUPCIÓN (ISR) --- */
+
+// --- ISR para el Timer de Hardware ---
 static void IRAM_ATTR isr_timer0(void *arg) 
 {
-    //  Limpiamos la bandera física del registro del Timer para que no haga "Panic"
+    // 1. Limpiamos la bandera física del registro del Timer para que no haga "Panic"
     hal_timer_clear_intr(HAL_TIMER_0);
     
-    //  Levantamos la bandera de software para la aplicación principal
+    // 2. Levantamos la bandera de software para la aplicación principal
     flag_timer0 = true; 
 }
 
-// ISR para el Botón 1 
-static void IRAM_ATTR isr_btn1(void *arg) 
+bool state_btn_anterior=false;
+bool state_btn_actual=false;
+volatile int contador=0;
+// --- ISR para el Botón 1 (Con filtro antirrebote de software) ---
+static void IRAM_ATTR isr_btn1(void *arg)
 {
-    static uint32_t ultimo_disparo = 0; 
-    uint32_t tiempo_actual = xTaskGetTickCountFromISR();
-
-    if ((tiempo_actual - ultimo_disparo) > pdMS_TO_TICKS(300)) {
-        flag_btn1 = true;
-        ultimo_disparo = tiempo_actual;
-    }
+    contador++;
 }
 
 
 
-/*  FUNCIÓN PRINCIPAL  */
+/* --- 3. FUNCIÓN PRINCIPAL --- */
 void app_main(void) 
 {
-    printf(" Iniciando Firmware \n");
+    printf("--- Iniciando Firmware --\n");
 
-    /*  INICIALIZACIÓN DEL BSP (Placa Base) */
+    /* --- A. INICIALIZACIÓN DEL BSP (Placa Base) --- */
     if (!bsp_board_init()) {
         printf("Error critico: Fallo al inicializar la placa base.\n");
         return; 
@@ -56,7 +56,7 @@ void app_main(void)
     bsp_button_register_callback(BSP_BUTTON_1, isr_btn1, NULL);
 
 
-    /* INICIALIZACIÓN DEL HAL TIMER  */
+    /* --- B. INICIALIZACIÓN DEL HAL TIMER --- */
     hal_timer_cfg_t timer_cfg = {
         .id = HAL_TIMER_0,                  // Grupo 0, Timer 0
         .count_down = false,                // Cuenta ascendente
@@ -81,31 +81,41 @@ void app_main(void)
 
     printf("Hardware inicializado. Timer corriendo. Esperando eventos...\n");
 
-    /*  BUCLE PRINCIPAL (Super-loop)  */
+    /* --- 4. BUCLE PRINCIPAL (Super-loop) --- */
     while (1) 
     {
-        //  Procesar evento del Timer (Ocurrirá rigurosamente cada 500ms)
+        // 1. Procesar evento del Timer (Ocurrirá rigurosamente cada 500ms)
         if (flag_timer0) {
-            printf("Evento atrapado: Timer 0. Alternando LED RGB Verde.\n");
-            bsp_led_rgb_set(false, true, false); // Enciende solo el verde del LED RGB
+            bsp_led_toggle(BSP_LED_SISTEMA);
             flag_timer0 = false;
+            printf("contador: %d\n",contador);
         }
 
-        //  Procesar evento asíncrono del Botón 1
+        // 2. Procesar evento asíncrono del Botón 1
         if (flag_btn1) {
             printf("Evento atrapado: Boton 1. Alternando LED Sistema.\n");
-            bsp_led_toggle(BSP_LED_SISTEMA);
+            bsp_led_toggle(BSP_LED_2);
+
+            //bsp_led_rgb_set(true, true, true); // Enciende el rojo del RGB
             flag_btn1 = false; 
         }
 
-        // Procesar evento asíncrono del Botón 2
+        // 3. Procesar evento asíncrono del Botón 2
         if (bsp_button_is_pressed(BSP_BUTTON_2)) {
-            printf("Evento atrapado: Boton 2. Alternando LED 4.\n");
-            bsp_led_toggle(BSP_LED_4);
-            vTaskDelay(pdMS_TO_TICKS(200)); // Pequeña demora para evitar múltiples toggles por una sola pulsación
+            printf("Evento atrapado: Boton 2");
+            for(int i = 0; i < 4; i++) {
+                 bsp_led_set(leds[i], true);
+                vTaskDelay(pdMS_TO_TICKS(200));
+            }
+             for(int i = 0; i < 4; i++) {
+                bsp_led_set(leds[i], false);
+                vTaskDelay(pdMS_TO_TICKS(200));
+             } 
+            
         }
 
         // Ceder control a FreeRTOS por 10ms (Protección del Watchdog Timer)
         vTaskDelay(pdMS_TO_TICKS(10));
+        
     }
 }

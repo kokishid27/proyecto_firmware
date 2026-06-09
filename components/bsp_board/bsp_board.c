@@ -160,4 +160,5 @@ bool bsp_button_is_pressed(bsp_button_t btn) {
     hal_gpio_level_e estado;
     hal_gpio_read(pin, &estado);
     return (estado == HAL_GPIO_LOW); // Botón presionado si el estado es LOW (Pull-Up)
+    
 }
