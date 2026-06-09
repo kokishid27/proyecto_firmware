@@ -5,7 +5,7 @@
 
 #include <stddef.h>
 #include "bsp_board.h"
-#include "hal_board.h"  // Tu archivo HAL
+#include "hal_board.h"
 #include "stdio.h"
 
 //**************************** */

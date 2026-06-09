@@ -1,9 +1,42 @@
+/**
+ * @file driver_timer.c
+ * @brief Driver de temporizadores para ESP32 con soporte de interrupciones
+ *
+ * Este módulo implementa funciones de configuración y control de los
+ * temporizadores por hardware del ESP32, incluyendo la gestión de alarmas
+ * e interrupciones asociadas.
+ *
+ * Arquitectura de interrupciones:
+ *  - El ESP32 expone una única línea IRQ para todos los pines GPIO
+ *    (fuente ETS_GPIO_INTR_SOURCE).
+ *  - Este driver instala una ISR maestra (_gpio_isr_master) que lee los
+ *    registros GPIO_STATUS / GPIO_STATUS1, identifica los pines que
+ *    dispararon la interrupción, limpia sus banderas y despacha el
+ *    callback registrado por el usuario.
+ *  - Cada pin dispone de una entrada en la tabla _intr_table[40], donde
+ *    se almacena su tipo de interrupción, el callback asociado y el
+ *    argumento de usuario.
+ *
+ * Funcionalidades principales:
+ *  - Configuración de temporizadores (modo ascendente/descendente,
+ *    divisor de reloj, valor de alarma, autorecarga).
+ *  - Inicio y detención de temporizadores.
+ *  - Registro y limpieza de interrupciones por tiempo.
+ *  - Lectura y escritura del valor del contador de 64 bits.
+ *
+ * Notas de implementación:
+ *  - Se emplean macros auxiliares (GET_HIGH32B, GET_LOW32B) para dividir
+ *    valores de 64 bits en registros de 32 bits.
+ *  - Las rutinas de interrupción se asignan mediante esp_intr_alloc(),
+ *    con la bandera ESP_INTR_FLAG_IRAM para ejecución en memoria IRAM.
+ */
 #include <stdio.h>
 #include "driver_timer.h"
 
-#include "soc/timer_group_reg.h"
-#include "soc/timer_group_struct.h"
-#include "esp_intr_alloc.h"
+#include "soc/timer_group_reg.h"   /**< Definiciones de registros para el mapeo de los grupos de temporizadores del ESP32. */
+#include "soc/timer_group_struct.h" /**< Estructuras de datos que representan los registros de los grupos de temporizadores. */
+#include "esp_intr_alloc.h"        /**< Librería de la API de ESP-IDF para la asignación y manejo de interrupciones, incluyendo esp_intr_alloc() para registrar rutinas de servicio (ISR). */
+
 
 #define GET_HIGH32B(x) ((uint32_t)(x >> 32))
 #define GET_LOW32B(x)  ((uint32_t)(x & 0xFFFFFFFFULL))
