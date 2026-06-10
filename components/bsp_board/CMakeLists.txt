@@ -1,4 +1,4 @@
 idf_component_register(SRCS "bsp_board.c"
                     INCLUDE_DIRS "include"
-                    REQUIRES hal_board esp_hw_support
+                    REQUIRES hal_board
                     ) 
