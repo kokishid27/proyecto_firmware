@@ -38,9 +38,7 @@ static hal_gpio_type_logic_e _gpio_logic[40] = {HAL_POSITIVE_LOGIC};
  * @param timer   [out] Timer dentro del grupo (TIMER_0 / TIMER_1).
  * @return        true si el id es valido.
  */
-static bool _hal_timer_decode(hal_timer_id_e id,
-                               timer_grupo_e *grupo,
-                               timer_e       *timer)
+static bool _hal_timer_decode(hal_timer_id_e id, timer_grupo_e *grupo,timer_e *timer)
 {
     switch (id) {
         case HAL_TIMER_0: *grupo = TMR_GRUPO_0; *timer = TIMER_0; return true;
